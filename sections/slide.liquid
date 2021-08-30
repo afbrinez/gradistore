@@ -1,0 +1,208 @@
+<style>
+    *{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'lato';
+}
+
+.slide-contenedor{
+    max-width:100%;
+    max-height: 100vh;
+    width: auto;
+    height:auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.miSlider img{
+    width: 100%;
+    max-height: 100vh;
+    height: inherit;
+    object-fit: cover;
+    vertical-align: top;
+    transition: 2s;
+}
+
+.prendas img{
+    width: 100%;
+    height: inherit;
+    object-fit: cover;
+    vertical-align: top;
+    transition: 2s;
+}
+
+.prendas {
+    position: absolute;
+    right: 35px;
+    bottom: 0;
+    width: 700px;
+}
+
+.direcciones{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 20px;
+}
+
+.direcciones a{
+    color: #fff;
+    display: inline-block;
+    padding: 20px;
+    text-decoration: none;
+}
+
+.direcciones a:hover{
+    background: rgba(0, 0, 0, .5);
+    transition: .5s;
+}
+
+.barras{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom:15px;
+}
+
+.barra{
+    cursor: pointer;
+    height:2px;
+    width: 25px;
+    margin: 0 2px;
+    background: #dcdde1;
+    display: inline-block;
+    margin-left: 3px;
+}
+
+.active{
+    background-color: #e74c3c;
+}
+
+.fade{
+    animation-name: fade;
+    animation-duration: 1.5s;    
+}
+
+@keyframes fade {
+    from {opacity: .4;}
+    to{opacity:1;}
+}
+</style>
+    <div class="slide-contenedor">
+        
+        {%for block in section.blocks%}
+        <div class="miSlider fade">
+            <img src="{{block.settings.image| img_url: '1920x'}}" alt="">
+        </div>
+
+        <div class="prendas fade">
+            {% for product in collections[block.settings.colec].products %}
+            {% include 'product-grid-item-gradistore' %}
+            {% endfor %}
+        </div>
+        {%endfor%}
+
+        <div class="direcciones">
+            <a href="#" class="atras" onclick="avanzaSlide(-1)">&#10094;</a>
+            <a href="#" class="adelante" onclick="avanzaSlide(1)">&#10095;</a>
+        </div>
+        <div class="barras">
+            <span class="barra active" onclick="posicionSlide(1)"></span>
+            <span class="barra" onclick="posicionSlide(2)"></span>
+            <span class="barra" onclick="posicionSlide(3)"></span>
+        </div>
+    </div>
+
+    <script>
+    let indice = 1;
+    muestraSlides(indice);
+
+    function avanzaSlide(n){
+        muestraSlides( indice+=n );
+    }
+
+    function posicionSlide(n){
+        muestraSlides(indice=n);
+    }
+
+    setInterval(function tiempo(){
+        muestraSlides(indice+=1)
+    },10000);  
+
+
+    function muestraSlides(n){
+        let i;
+        let slides = document.getElementsByClassName('miSlider');
+        let barras = document.getElementsByClassName('barra');
+        let prendas = document.getElementsByClassName('prendas')
+
+        if(n > slides.length){
+            indice = 1;
+        }
+        if(n < 1){
+            indice = slides.length;
+        }
+        for(i = 0; i < slides.length; i++){
+            slides[i].style.display = 'none';
+            prendas[i].style.display = 'none';
+        }
+        for(i = 0; i < barras.length; i++){
+            barras[i].className = barras[i].className.replace(" active", "");
+        }
+
+        slides[indice-1].style.display = 'block';
+        barras[indice-1].className += ' active';
+        prendas[indice-1].style.display = 'block';
+    }
+    </script>
+
+    {% schema %}
+ {
+  "name": "slide",
+  "max_blocks": 4,
+  "settings":[
+    {
+        "type":"checkbox",
+        "id":"autorotate",
+        "label":"mover slides",
+        "default":true
+     }
+  ],
+  "blocks":[
+  {
+      "type": "image",
+      "name": "slide_image",
+      "settings":[
+      {
+          "type": "image_picker",
+          "id": "image",
+          "label": "image"
+      },
+      {
+          "type": "collection",
+          "id": "colec",
+          "label": "collections"
+      }
+      ]
+  }
+  ],
+  "presets":[
+  {
+      "name": "slide",
+      "category": "slider"
+  }
+  ]
+
+ }
+{% endschema %}
+    
